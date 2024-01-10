@@ -21,26 +21,70 @@
 
 #include "uniqueID.h"
 
-versionInfo: GameID
-        name = 'uniqueID Library Demo Game'
-        byline = 'Diegesis & Mimesis'
-        desc = 'Demo game for the uniqueID library. '
-        version = '1.0'
-        IFID = '12345'
-	showAbout() {
-		"This is a simple test game that demonstrates the features
-		of the uniqueID library.
-		<.p>
-		Consult the README.txt document distributed with the library
-		source for a quick summary of how to use the library in your
-		own games.
-		<.p>
-		The library source is also extensively commented in a way
-		intended to make it as readable as possible. ";
-	}
-;
-
 startRoom: Room 'Void' "This is a featureless void.";
 +me: Person;
 
-gameMain: GameMainDef initialPlayerChar = me;
+versionInfo: GameID;
+gameMain: GameMainDef
+	initialPlayerChar = me
+	newGame() {
+		"This demo provides a <b>&gt;FOOZLE</b> command.  It
+		implements a few simple tests of OIDs and UIDs. ";
+		"<.p> ";
+		runGame(true);
+	}
+;
+
+DefineSystemAction(Foozle)
+	_printIDs(obj) {
+		if(obj == nil) {
+			"\n_printIDs():  Nil object.\n ";
+			return;
+		}
+		"\n<<obj.name>>: oid = <<toString(obj._oid)>>,
+			uid = <q><<toString(obj._uid)>></q>\n ";
+	}
+
+	_lookupOID(id) {
+		local obj;
+
+		if((obj = oid2obj(id)) == nil) {
+			"\nLookup of OID <<toString(id)>> failed.\n ";
+			return;
+		} else {
+			"\nLookup of OID <<toString(id)>> returned
+				<<obj.name>>\n ";
+		}
+	}
+
+	_lookupUID(id) {
+		local obj;
+
+		if((obj = uid2obj(id)) == nil) {
+			"\nLookup of UID <q><<toString(id)>></q> failed.\n ";
+			return;
+		} else {
+			"\nLookup of UID <q><<toString(id)>></q> returned
+				<<obj.name>>\n ";
+		}
+	}
+
+	execSystemAction() {
+		"Attempting to assign the <q>me</q> object the UID
+			<q>foo</q>.\n ";
+		guid(me, 'foo');
+
+		_printIDs(me);
+
+		"Attempting to assign the <q>startRoom</q> object the
+			UID <q>foo</q>.  This should fail.\n ";
+		guid(startRoom, 'foo');
+
+		_printIDs(startRoom);
+
+		_lookupUID('foo');
+		_lookupOID(1);
+		_lookupOID(2);
+	}
+;
+VerbRule(Foozle) 'foozle': FoozleAction verbPhrase = 'foozle/foozling';

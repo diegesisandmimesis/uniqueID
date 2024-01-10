@@ -3,10 +3,8 @@
 -Fy obj -Fo obj
 -Fs ../..
 -Gstg
--o games/game.t3
+-o games/generateList.t3
 -lib system
 -lib adv3/adv3
--lib debugTool/debugTool
 -lib ../uniqueID
--source src/sample.t
--source reflect.t
+-source src/generateList.t
