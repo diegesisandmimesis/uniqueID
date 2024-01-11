@@ -37,7 +37,7 @@
 //
 //		guid(obj);
 //
-//	...by itself.  It will be assigned a UID of the form "obj#123",
+//	...by itself.  It will be assigned a UID of the form "obj123",
 //	where 123 is the object's UID.
 //
 //
@@ -65,6 +65,12 @@ uniqueIDModuleID: ModuleID {
 modify Object
 	_oid = nil		// object ID.  numeric, assigned by uidManager
 	_uid = nil		// unique ID.  can be assigned by the programmer
+
+	getOID() { return(_oid); }
+	getUID() { return(_uid); }
+
+	releaseOID() { uidManager.releaseObj(self); }
+	releaseUID() { uidManager.releaseObj(self); }
 ;
 
 // Singleton that keeps track of OIDs and UIDs.
@@ -184,16 +190,16 @@ uidManager: PreinitObject
 		if(obj == nil)
 			return(nil);
 
-		// If the second arg is nil, we use a UID of the form obj#1234
+		// If the second arg is nil, we use a UID of the form obj1234
 		// where the numbers are the object's OID.
 		// If the second arg is not nil we check to see if it's
 		// already in use.  If it is, we use that id + the object's
 		// OID.  If there's no conflict, we use the second arg
 		// as the UID as-is.
 		if(id == nil)
-			id = 'obj#<<toString(obj._oid)>>';
+			id = 'obj<<toString(obj._oid)>>';
 		else if(_uidLookup.isKeyPresent(id))
-			id = '<<id>>#<<toString(obj._oid)>>';
+			id = '<<id>><<toString(obj._oid)>>';
 
 		obj._uid = id;
 
@@ -253,5 +259,15 @@ uidManager: PreinitObject
 
 	_objectOIDSearch(v) {
 		return(_objectSearch(function(o) { return(o._oid == v); }));
+	}
+
+	releaseObj(obj) {
+		if(obj == nil)
+			return(nil);
+		if(obj._uid)
+			_uidLookup.removeElement(obj._uid);
+		if(obj._oid)
+			_oidLookup.removeElement(obj._oid);
+		return(true);
 	}
 ;
